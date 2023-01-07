@@ -30,7 +30,7 @@ export const handler = middy(
 
     const presignedUrl = await createAttachmentPresignedUrl(todoId);
 
-    const todos = await getAllTodos();
+    const todos = await getAllTodos(userId);
 
     var todo: TodoItem;
 

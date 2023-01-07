@@ -15,9 +15,9 @@ const todoAccess = new TodoAccess()
 
 const logger = createLogger('todo')
 
-export async function getAllTodos(): Promise<TodoItem[]> {
+export async function getAllTodos(userId: string): Promise<TodoItem[]> {
     logger.info('All todos sent');
-    return await todoAccess.getAllTodos()
+    return await todoAccess.getAllTodos(userId)
 }
 
 export async function createTodo(

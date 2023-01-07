@@ -39,7 +39,7 @@ export const handler = middy(
       }
     }
     logger.info('In todos stuff');
-    const todos = await getAllTodos();
+    const todos = await getAllTodos(userId);
 
     return {
       statusCode: 200,
