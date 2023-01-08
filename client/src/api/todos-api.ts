@@ -21,7 +21,7 @@ export async function createTodo(
   idToken: string,
   newTodo: CreateTodoRequest
 ): Promise<Todo> {
-  const response = await Axios.post(`${apiEndpoint}/todos`,  JSON.stringify(newTodo), {
+  const response = await Axios.post(`${apiEndpoint}/todos`, JSON.stringify(newTodo), {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
@@ -34,17 +34,19 @@ export async function patchTodo(
   idToken: string,
   todoId: string,
   updatedTodo: UpdateTodoRequest,
-  attachmentUrl? : string
+  attachmentUrl?: string
 ): Promise<void> {
-  if(attachmentUrl){
-    updatedTodo.attachmentUrl = attachmentUrl;
-  }
+  console.log('Great', JSON.stringify(updatedTodo));
   await Axios.patch(`${apiEndpoint}/todos/${todoId}`, JSON.stringify(updatedTodo), {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
     }
-  })
+  }).then(res => {
+    console.log(res);
+  }).then(err => {
+    console.log(err);
+  });
 }
 
 export async function deleteTodo(

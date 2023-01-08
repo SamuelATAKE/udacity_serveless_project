@@ -44,33 +44,6 @@ provider:
             - xray:PutTelemetryRecords
             - xray:PutTraceSegments
           Resource: "*"
-        - Effect: Allow
-          Action:
-            - dynamodb:Query
-            - dynamodb:Scan
-            - dynamodb:PutItem
-            - dynamodb:GetItem
-            - dynamodb:UpdateItem
-            - dynamodb:DeleteItem
-          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-        - Effect: Allow
-          Action:
-            - dynamodb:Query
-            - dynamodb:Scan
-          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/*
-        - Effect: Allow
-          Action:
-            - secretsmanager:GetSecretValue
-          Resource: !Ref Auth0Secret
-        - Effect: Allow
-          Action:
-            - kms:Decrypt
-          Resource: !GetAtt KMSKey.Arn
-        - Effect: Allow
-          Action: 
-            - s3:PutObject
-            - s3:GetObject
-          Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
 
 custom:
   topicName: imagesTopic-${self:provider.stage}
@@ -90,11 +63,25 @@ custom:
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource: !Ref Auth0Secret
+      - Effect: Allow
+        Action:
+          - kms:Decrypt
+        Resource: !GetAtt KMSKey.Arn
 
   # TODO: Configure this function -
   # Provide iamRoleStatements property for performing Actions on DynamoDB
   GetTodos:
     handler: src/lambda/http/getTodos.handler
+    iamRoleStatements:
+      - Effect: "Allow"        
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/*
     events:
       - http:
           method: get
@@ -108,6 +95,11 @@ functions:
   # To validate incoming HTTP requests, we have provided the request schemas in function definition below.
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
+    iamRoleStatements:
+      - Effect: "Allow"        
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
           method: post
@@ -122,6 +114,11 @@ functions:
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
+    iamRoleStatements:
+      - Effect: "Allow"        
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
           method: patch
@@ -136,6 +133,11 @@ functions:
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
+    iamRoleStatements:
+      - Effect: "Allow"        
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
           method: delete
@@ -147,6 +149,16 @@ functions:
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
+    iamRoleStatements:
+      - Effect: "Allow"        
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action: 
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
     events:
       - http:
           method: post

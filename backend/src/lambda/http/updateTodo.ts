@@ -13,8 +13,11 @@ const logger = createLogger('UpdateTodo');
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const todoId = event.pathParameters.todoId
+    logger.info(`The body ${event.body}`);
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
+    logger.info(`The body ${event.body}`);
     const authorization = event.headers.Authorization;
+
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
     const userId = getUserId(event);
     if (!userId) {
